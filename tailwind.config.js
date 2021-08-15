@@ -8,6 +8,11 @@ module.exports = {
       height: {
         "screen-js": "calc(100 * var(--vh))",
       },
+      fontFamily: {
+        display: ["Khand"],
+        additional: ["Khand"],
+        body: ["Overpass"],
+      },
     },
   },
   variants: {
