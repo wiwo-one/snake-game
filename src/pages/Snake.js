@@ -143,7 +143,7 @@ const Snake = () => {
   return (
     <>
       {true && (
-        <div className="w-full flex justify-start pt-16 flex-col items-center bg-gray-600 h-100%">
+        <div className="w-full flex justify-start pt-16 flex-col items-center bg-gray-600 h-screen-js">
           <div className="flex w-full justify-around">
             <p className="text-gray-300">Status: {gameStatus.gameOver ? "❌GAME OVER❌" : "✅"}</p>
             <h1 className="text-gray-300 ">Punkty: {points} </h1>
