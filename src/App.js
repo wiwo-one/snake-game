@@ -2,8 +2,9 @@ import "./App.css";
 import { useEffect, useRef, useState } from "react";
 
 import { Route, Switch, useHistory } from "react-router-dom";
-import Page2 from "./pages/Page2";
 import Snake from "./pages/Snake";
+import Page2 from "./pages/Page2";
+import Results from "./pages/Results";
 
 function App() {
   let history = useHistory();
@@ -21,12 +22,15 @@ function App() {
 
   return (
     <div>
-      <div className="w-full h-16 bg-pink-600 flex justify-around items-center absolute">
+      <div className="absolute flex items-center justify-around w-full h-10 bg-pink-600">
         <a href="#/" onClick={() => history.push("/")}>
           Snake
         </a>
         <a href="#/" onClick={() => history.push("/2")}>
           Page2
+        </a>
+        <a href="#/" onClick={() => history.push("/results")}>
+          Results
         </a>
       </div>
 
@@ -35,6 +39,7 @@ function App() {
           <Snake />
         </Route>
         <Route exact path="/2" component={Page2} />
+        <Route exact path="/results" component={Results} />
       </Switch>
     </div>
   );
