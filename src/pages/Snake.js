@@ -1,47 +1,55 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useInterval } from "../utils";
 
-const BOARD_WIDTH = 20;
-const BOARD_HEIGHT = 20;
+const BOARD_WIDTH = 15;
+const BOARD_HEIGHT = 15;
 
 const Snake = () => {
   const board = useRef([]);
 
+  //const restartCounter = useRef(0);
+  const [restartCounter, setRestartCounter] = useState(0);
+
+  //set up main array of arrays to store all fields
   useEffect(() => {
     const boardArr = [];
     for (let row = 0; row < BOARD_HEIGHT; row++) {
       const rowArr = [];
       for (let col = 0; col < BOARD_WIDTH; col++) {
-        rowArr.push({ x: col, y: row, bg: false, star: false });
+        rowArr.push({ x: col, y: row, snake: false, star: false });
       }
       boardArr.push(rowArr);
     }
     board.current = boardArr;
-    return () => {};
-  }, []);
 
-  //const [position, setPosition] = useState({ x: 3, y: 4 });
+    changeColor({
+      x: Math.floor(Math.random() * BOARD_WIDTH),
+      y: Math.floor(Math.random() * BOARD_HEIGHT),
+      action: "setStar",
+    });
+  }, [restartCounter]);
+
   const position = useRef({ x: 3, y: 4 });
   const snake = useRef([{ x: 3, y: 4 }]);
   const [direction, setDirection] = useState("R");
-  //const points = useRef(0);
   const [points, setPoints] = useState(0);
   const pointsRef = useRef(0);
-  const [gameStatus, setGameStatus] = useState({ isOn: true, info: "", isError: false, gameOver: false });
+  const [gameStatus, setGameStatus] = useState({ isOn: true, info: "", gameOver: false });
 
   const moveSnake = ({ x, y }) => {
     //przewidz co sie stanie
     if (typeof board?.current[y] === "undefined" || typeof board?.current[y][x] === "undefined") {
-      //wyjazd za linie - koniec
       console.log("❌ GAME OVER 😔");
-      setGameStatus({ isOn: false, info: "You went out of the board", isError: true, gameOver: true });
+      setGameStatus({ isOn: false, info: "You went out of the board", gameOver: true });
+      return;
     } else if (board.current[y][x]?.star) {
       //gwiazda zlapana
       console.log("yeah ⭐");
       pointsRef.current = pointsRef.current + 1;
-      handlePointCatch({ x: x, y: y });
+      handleStarConsumption({ x: x, y: y });
       snake.current.push({ x, y });
       position.current = { x, y };
-      changeColor({ x, y, bgMark: true });
+      changeColor({ x, y, action: "setSnake" });
     } else if (
       !(() => {
         //czy nie zjada samego siebie
@@ -58,78 +66,60 @@ const Snake = () => {
       })()
     ) {
       console.log("YOUE EAT YOURSELF, GAME OVER");
-      setGameStatus({ isOn: false, info: "You bite yourself", isError: true, gameOver: true });
+      setGameStatus({ isOn: false, info: "You bite yourself", gameOver: true });
     } else {
       //gra dalej
       snake.current.push({ x, y });
-      changeColor({ x: snake.current[0].x, y: snake.current[0].y, bgMark: false });
+      changeColor({ x: snake.current[0].x, y: snake.current[0].y, action: "clearSnake" });
       snake.current = snake.current.splice(1);
       position.current = { x, y };
-      changeColor({ x, y, bgMark: true });
+      changeColor({ x, y, action: "setSnake" });
     }
   };
 
   const makeNextStep = () => {
-    let x = position.current.x;
+    let { x, y } = position.current;
     if (direction === "L") x = x - 1;
-    else if (direction === "R") x = x + 1;
-    let y = position.current.y;
+    if (direction === "R") x = x + 1;
     if (direction === "D") y = y + 1;
-    else if (direction === "U") y = y - 1;
-
+    if (direction === "U") y = y - 1;
     moveSnake({ x: x, y: y });
-    console.log("Doing move X:" + x + " Y:" + y);
   };
 
-  const changeColor = ({ x, y, bgMark = null, starMark = null }, toggle = "snake") => {
+  const changeColor = ({ x, y, action = "null" }) => {
     const newBoard = board.current.splice(0);
-
-    newBoard.forEach((row, rowInd) => {
-      if (rowInd === y) {
-        if (toggle === "snake") {
-          newBoard[rowInd][x].bg = !newBoard[rowInd][x].bg;
-        } else if (toggle === "star") {
-          newBoard[rowInd][x].star = !newBoard[rowInd][x].star;
-        } else if (bgMark != null) {
-          newBoard[rowInd][x].bg = bgMark;
-        } else if (starMark != null) {
-          newBoard[rowInd][x].star = starMark;
-        }
-      }
-    });
+    if (action === "toggleSnake") newBoard[y][x].snake = !newBoard[y][x].snake;
+    if (action === "toggleStar") newBoard[y][x].star = !newBoard[y][x].star;
+    if (action === "setSnake") newBoard[y][x].snake = true;
+    if (action === "setStar") newBoard[y][x].star = true;
+    if (action === "clearSnake") newBoard[y][x].snake = false;
+    if (action === "clearStar") newBoard[y][x].star = false;
     board.current = newBoard.splice(0);
     setCounter(counter + 1);
   };
 
   const checkKey = (e) => {
-    e = e || window.event;
-    let p = position.current;
     if (e.keyCode === "38" || e.code === "ArrowUp") {
-      //moveSnake({ x: p.x, y: p.y - 1 });
       setDirection("U");
-      console.log("up");
     } else if (e.keyCode === "40" || e.code === "ArrowDown") {
-      //moveSnake({ x: p.x, y: p.y + 1 });
       setDirection("D");
-      console.log("down");
     } else if (e.keyCode === "37" || e.code === "ArrowLeft") {
-      //moveSnake({ x: p.x - 1, y: p.y });
       setDirection("L");
-      console.log("left");
     } else if (e.keyCode === "39" || e.code === "ArrowRight") {
-      //moveSnake({ x: p.x + 1, y: p.y });
       setDirection("R");
-      console.log("right");
+    } else if (e.keyCode === "32" || e.code === " " || e.code === "Spacebar") {
+      console.log("SPACJA");
     }
   };
 
-  const handlePointCatch = ({ x, y }) => {
-    changeColor({ x, y }, "star");
+  const handleStarConsumption = ({ x, y }) => {
+    changeColor({ x, y, action: "clearStar" });
     setPoints(points + 1);
-    changeColor(
-      { x: Math.floor(Math.random() * BOARD_WIDTH), y: Math.floor(Math.random() * BOARD_HEIGHT) },
-      "star"
-    );
+    changeColor({
+      x: Math.floor(Math.random() * BOARD_WIDTH),
+      y: Math.floor(Math.random() * BOARD_HEIGHT),
+      action: "setStar",
+    });
   };
 
   const [counter, setCounter] = useState(0);
@@ -138,6 +128,8 @@ const Snake = () => {
     setCounter(counter + 1);
   }, [board.current]);
 
+  useEffect(() => {}, [counter]);
+
   useEffect(() => {
     setPoints(pointsRef.current);
   }, [pointsRef.current]);
@@ -145,31 +137,51 @@ const Snake = () => {
   useEffect(() => {
     document.addEventListener("keydown", checkKey);
     //snake start
-    changeColor({ x: 3, y: 4 });
+    changeColor({ x: 3, y: 4, action: "setSnake" });
     //draw first star
-    changeColor(
-      { x: Math.floor(Math.random() * BOARD_WIDTH), y: Math.floor(Math.random() * BOARD_HEIGHT) },
-      "star"
-    );
+    // changeColor({
+    //   x: Math.floor(Math.random() * BOARD_WIDTH),
+    //   y: Math.floor(Math.random() * BOARD_HEIGHT),
+    //   action: "setStar",
+    // });
     return () => {};
   }, []);
 
-  const [intervalCounter, setIntervalCounter] = useState(0);
-
-  useEffect(() => {
-    let interval;
+  useInterval(() => {
     if (gameStatus.isOn) {
-      interval = setInterval(() => {
-        console.log("interval");
-        setIntervalCounter(intervalCounter + 1);
-        makeNextStep();
-      }, 300);
-    }
+      console.log("useinterval 🤑");
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [intervalCounter]);
+      makeNextStep();
+    }
+  }, 1000);
+
+  const restartGame = () => {
+    debugger;
+    setRestartCounter((prev) => prev + 1);
+    setCounter(0);
+    //const newBoard = board.current.splice(0);
+
+    // board.current.forEach((row) => {
+    //   console.log("czyszczee" + row);
+    //   console.dir(row);
+    //   row.forEach((el) => {
+    //     console.log("CZYSZCZEE" + el);
+    //     console.dir(el);
+    //     changeColor({ x: el.x, y: el.y, action: "setSnake" });
+    //     changeColor({ x: el.x, y: el.y, action: "toggleSnake" });
+    //     changeColor({ x: el.x, y: el.y, action: "setStar" });
+    //     changeColor({ x: el.x, y: el.y, action: "toggleStar" });
+    //   });
+    // });
+    // board.current = newBoard.splice(0);
+    setGameStatus({ isOn: true, info: "", gameOver: false });
+
+    position.current = { x: 3, y: 4 };
+    snake.current = [{ x: 3, y: 4 }];
+    setDirection("R");
+    setPoints(0);
+    pointsRef.current = 0;
+  };
 
   return (
     <>
@@ -184,23 +196,30 @@ const Snake = () => {
           </div>
           <div className="flex justify-around mb-8 w-full">
             <p className="text-gray-300">{gameStatus.info}</p>
-
-            <p className="text-gray-300">{gameStatus.isError ? "ERROR" : ""}</p>
+            <button
+              onClick={() => {
+                {
+                  restartGame();
+                }
+              }}>
+              START
+            </button>
           </div>
 
           {/* ROWS */}
-          <div className="flex flex-col border-2 border-blue-600">
+          <div className="border-[1px] flex flex-col border-blue-600">
             {board.current.map((y, iy) => (
-              <div key={iy} className="flex h-12 border-0 border-blue-600">
+              <div key={iy} className="flex h-6 border-0 border-blue-600">
                 {/* COLS */}
                 {y.map((x, ix) => (
                   <div
                     key={BOARD_WIDTH * iy + ix}
-                    className={`w-12 h-12 border-2 border-blue-600 text-xs ${
-                      board.current[iy][ix]?.bg === true && "bg-green-500"
-                    }  
-                      ${board.current[iy][ix]?.star === true && "bg-yellow-400"}
-                    }`}>{`X${x.x} Y${x.y}`}</div>
+                    className={`w-6 h-6 border-[1px] border-blue-600 text-xs 
+                    ${board.current[iy][ix].snake ? "bg-green-500 rounded-md" : ""}  
+                      ${board.current[iy][ix].star === true ? "bg-yellow-400" : ""}
+                    }`}>
+                    {/* {`X${x.x} Y${x.y}`} */}
+                  </div>
                 ))}
               </div>
             ))}
