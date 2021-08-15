@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div>
-      <div className="w-full h-16 bg-pink-600 flex justify-around items-center">
+      <div className="w-full h-16 bg-pink-600 flex justify-around items-center absolute">
         <a href="#/" onClick={() => history.push("/")}>
           Snake
         </a>
