@@ -41,7 +41,7 @@ const Snake2 = () => {
   };
 
   useInterval(() => {
-    if (gameState.status != "STOPPED") {
+    if (gameState.status !== "STOPPED") {
       handleMoveClick();
     }
   }, 300);

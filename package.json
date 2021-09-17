@@ -1,7 +1,8 @@
 {
-  "name": "portfolio-not-a-dev",
+  "name": "snake-game",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@craco/craco": "^6.2.0",
     "@testing-library/jest-dom": "^5.11.4",
