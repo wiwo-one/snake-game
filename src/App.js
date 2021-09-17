@@ -33,7 +33,7 @@ function App() {
           Results
         </a>
       </div>
-
+      <Snake />
       <Switch>
         <Route exact path="/">
           <Snake />
