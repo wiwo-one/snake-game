@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 
 import { Route, Switch, useHistory } from "react-router-dom";
 import Snake from "./pages/Snake";

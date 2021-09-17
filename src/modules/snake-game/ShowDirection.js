@@ -1,3 +1,5 @@
+import React from "react";
+
 export const ShowDirection = ({ direction }) => {
   const emoji = () => {
     switch (direction) {
@@ -14,5 +16,5 @@ export const ShowDirection = ({ direction }) => {
     }
   };
 
-  return <>{emoji()}</>;
+  return <div>{emoji()}</div>;
 };
