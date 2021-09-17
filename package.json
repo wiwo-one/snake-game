@@ -2,7 +2,11 @@
   "name": "snake-game",
   "version": "0.1.0",
   "private": true,
+<<<<<<< HEAD
   "homepage": "/snake-game-develop/build",
+=======
+  "homepage": ".",
+>>>>>>> 6b57b9abf1b5fe516880b3adbe88858096006ca2
   "dependencies": {
     "@craco/craco": "^5.9.0",
     "@testing-library/jest-dom": "^5.11.4",
