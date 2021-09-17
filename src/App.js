@@ -22,8 +22,8 @@ function App() {
 
   return (
     <div>
-      <div className="absolute flex items-center justify-around w-full h-10 bg-pink-600">
-        <a href="#/" onClick={() => history.push("/")}>
+      <div className="absolute flex items-center justify-around w-full h-6 bg-pink-600">
+        {/* <a href="#/" onClick={() => history.push("/")}>
           Snake
         </a>
         <a href="#/" onClick={() => history.push("/2")}>
@@ -31,13 +31,21 @@ function App() {
         </a>
         <a href="#/" onClick={() => history.push("/results")}>
           Results
+        </a> */}
+        <a href="#/" onClick={() => history.push("/")}>
+          Snake
+        </a>
+        <a href="#/2" onClick={() => history.push("/2")}>
+          Page2
+        </a>
+        <a href="#/results" onClick={() => history.push("/results")}>
+          Results
         </a>
       </div>
-      <Snake />
+
       <Switch>
-        <Route exact path="/">
-          <Snake />
-        </Route>
+        <Route exact path="/" component={Snake} />
+
         <Route exact path="/2" component={Page2} />
         <Route exact path="/results" component={Results} />
       </Switch>
