@@ -2,7 +2,7 @@
   "name": "snake-game",
   "version": "0.1.0",
   "private": true,
-  "homepage": ".",
+  "homepage": "http://wiwo.one/snake-game/",
   "dependencies": {
     "@craco/craco": "^5.9.0",
     "@testing-library/jest-dom": "^5.11.4",
