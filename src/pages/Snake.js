@@ -36,7 +36,7 @@ const Snake2 = () => {
   };
 
   const handleResetGameClick = () => {
-    game.current = new Game({ snakeHeadPosition: { x: 2, y: 5 } });
+    game.current = new Game({ snakeHeadPosition: { x: 2, y: 5 }, width: 15, height: 15 });
     setGameState({ ...gameState, status: "RESTARTED" });
   };
 
