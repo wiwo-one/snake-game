@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import Board from "../modules/snake-game/Board";
 
-import Game from "../modules/snake-game/game";
+import Game from "../modules/snake-game/Game";
 import { ShowDirection } from "../modules/snake-game/ShowDirection";
 import useKeyboardControl from "../modules/snake-game/useKeyboardControl";
+import useMobileControl from "../modules/snake-game/useMobileControl";
 import { useInterval } from "../utils";
 
 const Snake2 = () => {
@@ -20,11 +21,20 @@ const Snake2 = () => {
 
   const [gameState, setGameState] = useState(getRefreshedGameState());
 
-  const [direction] = useKeyboardControl();
+  const [direction, setDirection] = useState("R");
+
+  const [keyboardDirection] = useKeyboardControl();
+  const [mobileDirection, mobileControl] = useMobileControl();
 
   useEffect(() => {
-    game.current.direction = direction;
-  }, [direction]);
+    game.current.direction = keyboardDirection;
+    setDirection(keyboardDirection);
+  }, [keyboardDirection]);
+
+  useEffect(() => {
+    game.current.direction = mobileDirection;
+    setDirection(mobileDirection);
+  }, [mobileDirection]);
 
   const handleMoveClick = () => {
     game.current.makeNextStep();
@@ -40,33 +50,25 @@ const Snake2 = () => {
     setGameState({ ...gameState, status: "RESTARTED" });
   };
 
-  useInterval(() => {
+  const [setActualDelay] = useInterval(() => {
     if (gameState.status !== "STOPPED") {
       handleMoveClick();
     }
   }, 300);
 
   return (
-    <div className="flex flex-col items-center pt-16 h-screen-js bg-gray-400">
-      <section className="flex gap-5 justify-around">
-        <button onClick={handleMoveClick} className="p-2 bg-gray-300 rounded-md">
-          MOVE 🐍
-        </button>
-        <button onClick={game.current.printGameInfo} className="p-2 bg-gray-300 rounded-md">
-          PRINT INFO 🐍
-        </button>
+    <div className="flex flex-col items-center pt-10 bg-gray-400 h-screen-js">
+      <section className="flex justify-around gap-5">
         <button onClick={handleStopGameClick} className="p-2 bg-gray-300 rounded-md">
           STOP ❌
         </button>
         <button onClick={handleResetGameClick} className="p-2 bg-gray-300 rounded-md">
           RESET 🔁
         </button>
-      </section>
-      <section className="mt-5">
-        <h1 className="text-gray-800">
-          Direction: <ShowDirection direction={direction} /> <div className="inline-block w-10"></div> Points:{" "}
-          {gameState.points}
-        </h1>
+        <div className="p-2 bg-gray-300 rounded-md">
+          <ShowDirection direction={direction} />
+        </div>
+        <div className="p-2 bg-gray-300 rounded-md">SCORE: {gameState.points}</div>
       </section>
 
       <section className="mt-5">
@@ -77,6 +79,18 @@ const Snake2 = () => {
           snake={gameState.snakeHeadPosition}
           snakeArray={gameState.snakeArray}
         />
+      </section>
+      <section>{mobileControl}</section>
+      <section>
+        <button onClick={() => setActualDelay(300)} className="p-2 bg-gray-300 rounded-md">
+          300 🔥
+        </button>
+        <button onClick={() => setActualDelay(50)} className="p-2 bg-gray-300 rounded-md">
+          50 🔥
+        </button>
+        <button onClick={() => setActualDelay(1000)} className="p-2 bg-gray-300 rounded-md">
+          1000 🔥
+        </button>
       </section>
     </div>
   );

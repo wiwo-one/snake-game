@@ -27,8 +27,8 @@ const Results = () => {
   };
 
   const addNewResult = useCallback(async () => {
-    if (!name) return; // if we don't have a title, we don't want to add a new todo
-    // const { ok } = response // BAD, DO NOT DO THIS
+    if (!name) return;
+
     const newResult = await post("/result", {
       name,
       points: points,

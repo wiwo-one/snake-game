@@ -16,5 +16,5 @@ export const ShowDirection = ({ direction }) => {
     }
   };
 
-  return <div>{emoji()}</div>;
+  return <span>{emoji()}</span>;
 };

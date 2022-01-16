@@ -5,6 +5,7 @@ import { Route, Switch, useHistory } from "react-router-dom";
 import Snake from "./pages/Snake";
 import Page2 from "./pages/Page2";
 import Results from "./pages/Results";
+import ResultsFirebase from "./pages/ResultsFirebase";
 
 function App() {
   let history = useHistory();
@@ -41,6 +42,9 @@ function App() {
         <a href="#/results" onClick={() => history.push("/results")}>
           Results
         </a>
+        <a href="#/results-firebase" onClick={() => history.push("/results-firebase")}>
+          ResultsFirebase
+        </a>
       </div>
 
       <Switch>
@@ -48,6 +52,7 @@ function App() {
 
         <Route exact path="/2" component={Page2} />
         <Route exact path="/results" component={Results} />
+        <Route exact path="/results-firebase" component={ResultsFirebase} />
       </Switch>
     </div>
   );
