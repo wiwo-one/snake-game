@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   collection,
@@ -11,6 +11,9 @@ import {
   addDoc,
   startAt,
   startAfter,
+  Timestamp,
+  endAt,
+  endBefore,
 } from "firebase/firestore";
 import db from "../utils/Firebase";
 
@@ -28,45 +31,70 @@ async function getResults(db) {
 export default function ResultsFirebase() {
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(0);
-  const [prevLastVisible, setPrevLastVisible] = useState();
+  const [prevPage, setPrevPage] = useState(-1);
+  const prevLastVisible = useRef();
   const [lastVisible, setLastVisible] = useState();
+  const [firstVisible, setFirstVisible] = useState();
 
   useEffect(async () => {
     const qStart = query(collection(db, "results"), orderBy("result"), limit(5));
-
     const unsubscribe = onSnapshot(qStart, (querySnapshot) => {
       setResults(querySnapshot.docs.map((doc) => doc.data()));
-
+      setFirstVisible(querySnapshot.docs[0]);
       setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-      //console.log(lastVisible);
-      //console.log(querySnapshot.docs.length - 1);
     });
-
     return () => {
       unsubscribe();
     };
   }, []);
 
   useEffect(() => {
-    let qNext = null;
     let unsubscribe = null;
+    let qNext = null;
     console.log(lastVisible);
-    if (page > 0 && lastVisible !== undefined) {
-      setPrevLastVisible(lastVisible);
-      console.log(prevLastVisible);
-      qNext = query(collection(db, "results"), orderBy("result"), startAfter(lastVisible), limit(5));
-      unsubscribe = onSnapshot(qNext, (querySnapshot) => {
-        setResults(querySnapshot.docs.map((doc) => doc.data()));
-        setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
-
+    if (prevPage < page) {
+      prevLastVisible.current = lastVisible;
+      if (page > 0 && lastVisible !== undefined) {
+        qNext = query(collection(db, "results"), orderBy("result"), startAfter(lastVisible), limit(5));
+        unsubscribe = onSnapshot(qNext, (querySnapshot) => {
+          setResults(querySnapshot.docs.map((doc) => doc.data()));
+          setFirstVisible(querySnapshot.docs[0]);
+          setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+        });
+      }
+    } else {
+      console.log(firstVisible.data());
+      const qNext2 = query(collection(db, "results"), orderBy("result"), endAt(firstVisible), limit(5));
+      unsubscribe = onSnapshot(qNext2, (querySnapshot2) => {
+        setResults(
+          querySnapshot2.docs.map((doc) => {
+            console.log(doc.data());
+            return doc.data();
+          })
+        );
+        setFirstVisible(querySnapshot2.docs[0]);
+        setLastVisible(querySnapshot2.docs[querySnapshot2.docs.length - 1]);
+        //console.log(prevLastVisible.current);
         //console.log(querySnapshot.docs.length - 1);
       });
     }
+
+    //setPrevPage(page);
 
     return () => {
       typeof unsubscribe === "function" ? unsubscribe() : console.log("NIE FUNKCJA");
     };
   }, [page]);
+
+  const handlePrevClick = () => {
+    if (page <= 0) return;
+    setPrevPage(page);
+    setPage((prev) => prev - 1);
+  };
+  const handleNextClick = () => {
+    setPrevPage(page);
+    setPage((prev) => prev + 1);
+  };
 
   const [name, setName] = useState();
   const [result, setResult] = useState(0);
@@ -83,6 +111,7 @@ export default function ResultsFirebase() {
       const docRef = await addDoc(collection(db, "results"), {
         playerName: name,
         result: result,
+        saveTime: Timestamp.now(),
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
@@ -122,12 +151,11 @@ export default function ResultsFirebase() {
         </div>
       </section>
       <section className="pt-2">
-        <a onClick={() => setPage((prev) => prev - 1)}>PREV </a>
+        <a onClick={handlePrevClick}>PREV </a>
         PAGE: {page}
-        <a onClick={() => setPage((prev) => prev + 1)} ef="">
-          NEXT
-        </a>
+        <a onClick={handleNextClick}>NEXT</a>
       </section>
+      <section>PREV PAGE: {prevPage}</section>
     </div>
   );
 }
