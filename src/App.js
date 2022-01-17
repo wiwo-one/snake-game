@@ -2,7 +2,7 @@ import "./App.css";
 import React, { useEffect } from "react";
 
 import { Route, Switch, useHistory } from "react-router-dom";
-import Snake from "./pages/Snake";
+import SnakeGame from "./pages/SnakeGame";
 import Page2 from "./pages/Page2";
 import Results from "./pages/Results";
 import ResultsFirebase from "./pages/ResultsFirebase";
@@ -48,7 +48,7 @@ function App() {
       </div>
 
       <Switch>
-        <Route exact path="/" component={Snake} />
+        <Route exact path="/" component={SnakeGame} />
 
         <Route exact path="/2" component={Page2} />
         <Route exact path="/results" component={Results} />

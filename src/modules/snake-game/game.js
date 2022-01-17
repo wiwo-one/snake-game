@@ -1,13 +1,10 @@
 export default function Game({ snakeHeadPosition, width, height }) {
-  this.boardWidth = width;
-  this.boardHeight = height;
-
   this.wallTeleport = true;
 
   const boardArr = [];
-  for (let row = 0; row < this.boardHeight; row++) {
+  for (let row = 0; row < height; row++) {
     const rowArr = [];
-    for (let col = 0; col < this.boardWidth; col++) {
+    for (let col = 0; col < width; col++) {
       rowArr.push({ x: col, y: row, snake: false, star: false });
     }
     boardArr.push(rowArr);
@@ -29,41 +26,36 @@ export default function Game({ snakeHeadPosition, width, height }) {
 
   const randomPosition = () => {
     return {
-      x: Math.floor(Math.random() * this.boardWidth),
-      y: Math.floor(Math.random() * this.boardHeight),
+      x: Math.floor(Math.random() * width),
+      y: Math.floor(Math.random() * height),
     };
   };
 
   this.starPosition = randomPosition();
 
-  this.snakeHeadPosition = snakeHeadPosition;
   this.snake = new Snake({ startPosition: snakeHeadPosition });
 
-  this.getSnakeArray = this.snake.getSnakeArray;
-
-  const moveSnake = ({ x, y }, add = false) => {
-    this.snakeHeadPosition = { x, y };
-    this.snake.moveSnakeBody({ x, y }, add);
-    //if (add) this.snake.addOnePart({ x, y });
+  this.getNextPosition = () => {
+    let { x, y } = this.snake.getHeadPosition();
+    if (this.direction === "L") x = x - 1;
+    if (this.direction === "R") x = x + 1;
+    if (this.direction === "D") y = y + 1;
+    if (this.direction === "U") y = y - 1;
+    return { x, y };
   };
 
   this.makeNextStep = () => {
     //debugger;
-    let { x, y } = this.snakeHeadPosition;
-    const { direction } = this;
-    if (direction === "L") x = x - 1;
-    if (direction === "R") x = x + 1;
-    if (direction === "D") y = y + 1;
-    if (direction === "U") y = y - 1;
+    let { x, y } = this.getNextPosition();
 
     //check if move valid
-    if (x < 0 || y < 0 || x >= this.boardWidth || y >= this.boardHeight) {
+    if (x < 0 || y < 0 || x >= width || y >= height) {
       if (this.wallTeleport) {
-        if (x < 0) x = this.boardWidth + x;
-        if (y < 0) y = this.boardWidth + y;
-        if (x >= this.boardWidth) x = x - this.boardWidth;
-        if (y >= this.boardWidth) y = y - this.boardHeight;
-        moveSnake({ x: x, y: y });
+        if (x < 0) x = width + x;
+        if (y < 0) y = width + y;
+        if (x >= width) x = x - width;
+        if (y >= width) y = y - height;
+        this.snake.moveSnake({ x: x, y: y });
       } else {
         console.log("❌ GAME OVER 😔");
         return;
@@ -73,11 +65,11 @@ export default function Game({ snakeHeadPosition, width, height }) {
       this.points += 1;
       console.log("yeah ⭐ punkty: " + this.points);
       this.starPosition = randomPosition();
-      moveSnake({ x: x, y: y }, true);
-    } else if (this.getSnakeArray().filter((sn) => (sn.x === x) & (sn.y === y)).length > 0) {
+      this.snake.moveSnake({ x, y }, true);
+    } else if (this.snake.getSnakeArray().filter((sn) => (sn.x === x) & (sn.y === y)).length > 0) {
       console.log("❌ GAME OVER 🍰🍰🍰🍰 ZJADŁEM SIĘ 😔");
     } else {
-      moveSnake({ x: x, y: y });
+      this.snake.moveSnake({ x, y });
     }
   };
 
@@ -93,6 +85,10 @@ function Snake({ startPosition }) {
   let tail = this.head;
   //const body = [this.head]
 
+  this.getHeadPosition = () => {
+    return { x: this.head.x, y: this.head.y };
+  };
+
   this.addOnePart = (position) => {
     const newEl = {
       prev: tail,
@@ -106,7 +102,7 @@ function Snake({ startPosition }) {
     this.length += 1;
   };
 
-  this.moveSnakeBody = ({ x, y }, add) => {
+  this.moveSnake = ({ x, y }, add) => {
     const moveNext = ({ x, y }, pointer) => {
       const prevX = pointer.x;
       const prevY = pointer.y;
@@ -116,7 +112,8 @@ function Snake({ startPosition }) {
       //to add element one step earlier - pass prevx and prevY
       else if (!pointer.next && add) this.addOnePart({ x: x, y: y });
     };
-
+    //this.head.x = x;
+    //this.head.y = y;
     moveNext({ x: x, y: y }, this.head);
   };
 
