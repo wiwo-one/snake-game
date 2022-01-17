@@ -1,17 +1,6 @@
 export default function Game({ snakeHeadPosition, width, height }) {
   this.wallTeleport = true;
 
-  const boardArr = [];
-  for (let row = 0; row < height; row++) {
-    const rowArr = [];
-    for (let col = 0; col < width; col++) {
-      rowArr.push({ x: col, y: row, snake: false, star: false });
-    }
-    boardArr.push(rowArr);
-  }
-
-  this.boardArr = boardArr;
-
   //points
   this.points = 0;
   this.addPoint = function () {
@@ -57,17 +46,17 @@ export default function Game({ snakeHeadPosition, width, height }) {
         if (y >= width) y = y - height;
         this.snake.moveSnake({ x: x, y: y });
       } else {
-        console.log("❌ GAME OVER 😔");
+        //console.log("❌ GAME OVER 😔");
         return;
       }
     } else if (x === this.starPosition.x && y === this.starPosition.y) {
       //PUNKT
       this.points += 1;
-      console.log("yeah ⭐ punkty: " + this.points);
+      //console.log("yeah ⭐ punkty: " + this.points);
       this.starPosition = randomPosition();
       this.snake.moveSnake({ x, y }, true);
     } else if (this.snake.getSnakeArray().filter((sn) => (sn.x === x) & (sn.y === y)).length > 0) {
-      console.log("❌ GAME OVER 🍰🍰🍰🍰 ZJADŁEM SIĘ 😔");
+      //console.log("❌ GAME OVER 🍰🍰🍰🍰 ZJADŁEM SIĘ 😔");
     } else {
       this.snake.moveSnake({ x, y });
     }
@@ -83,13 +72,12 @@ function Snake({ startPosition }) {
   this.length = 1;
   this.head = { x: startPosition.x, y: startPosition.y, next: null, prev: null };
   let tail = this.head;
-  //const body = [this.head]
 
   this.getHeadPosition = () => {
     return { x: this.head.x, y: this.head.y };
   };
 
-  this.addOnePart = (position) => {
+  const addOnePart = (position) => {
     const newEl = {
       prev: tail,
       next: null,
@@ -110,19 +98,19 @@ function Snake({ startPosition }) {
       pointer.y = y;
       if (pointer.next) moveNext({ x: prevX, y: prevY }, pointer.next);
       //to add element one step earlier - pass prevx and prevY
-      else if (!pointer.next && add) this.addOnePart({ x: x, y: y });
+      else if (!pointer.next && add) addOnePart({ x, y });
     };
-    //this.head.x = x;
-    //this.head.y = y;
-    moveNext({ x: x, y: y }, this.head);
+    moveNext({ x, y }, this.head);
   };
 
   this.getSnakeArray = () => {
     const resArr = [];
+    let count = 0;
     let pointer = this.head;
     while (pointer) {
-      resArr.push({ x: pointer.x, y: pointer.y });
+      resArr.push({ x: pointer.x, y: pointer.y, index: count });
       pointer = pointer.next;
+      count++;
     }
     return resArr;
   };

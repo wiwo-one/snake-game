@@ -1,74 +1,63 @@
-import React from "react";
-import { AnimatePresence, AnimateSharedLayout, motion } from "framer-motion";
+import React, { useEffect } from "react";
+import { AnimatePresence, AnimateSharedLayout, motion, useAnimation } from "framer-motion";
 
-const Board = ({ width, height, star, snake, snakeArray, nextPosition, children }) => {
+const Board = ({ width, height, star, snakeArray, nextPosition, children }) => {
   const checkIfSnake = ({ x, y }) => {
-    if (snakeArray.filter((sn) => sn.x === x && sn.y === y).length > 0) {
-      let numer;
-      snakeArray.forEach((sn, ind) => {
-        if (sn.x === x && sn.y === y) {
-          numer = ind + 1;
-        }
-      });
-      return numer;
-    }
+    let numer;
+    snakeArray.forEach((sn, ind) => {
+      if (sn.x === x && sn.y === y) numer = ind + 1;
+    });
+    return numer;
   };
 
   const Point = ({ x, y }) => {
+    const control = useAnimation();
+
     let layoutId;
     let classString = `w-7 h-7`;
-    // if (snake.x === x && snake.y === y) {
-    //   classString = `${classString} bg-pink-500 rounded-md`;
-    //   layoutId = `snake-head`;
-    // }
+    let xres = 0;
+    let yres = 0;
     const num = checkIfSnake({ x, y });
-
     if (num) {
-      console.log("NUM " + num);
       classString = `${classString} ${num % 2 ? "bg-green-200" : "bg-green-400"} rounded-md`;
       layoutId = `snake-${num}`;
-      let xres = 0;
-      let yres = 0;
       if (num > 1) {
         const { x: x2, y: y2 } = snakeArray?.[num - 2];
         const { x: x1, y: y1 } = snakeArray?.[num - 1];
         xres = x2 - x1;
         yres = y2 - y1;
-        console.log(`xres: ${xres} | yres ${yres}`);
       } else {
         const { x: x1, y: y1 } = snakeArray?.[num - 1];
         xres = nextPosition.x - x1;
         yres = nextPosition.y - y1;
-        console.log(xres);
-        //const {x: x2, y: y2} = next
       }
+    }
 
+    if (num) {
       return (
         <motion.div
           layoutId={layoutId}
           initial={{ x: 0, y: 0, opacity: 0.8 }}
           animate={{ x: xres * 20, y: yres * 20, opacity: 1 }}
+          //animate={control}
           exit={{ x: xres * 20, y: yres * 20, opacity: 0.6 }}
           style={{ display: "inline-block" }}
           className={classString}
-          transition={{ duration: 0.3, type: "tween" }}
-        />
+          transition={{
+            duration: (() => {
+              if (y > 0 && y < height - 1 && x > 0 && x < width - 1) return 0.3;
+              else return 10;
+            })(),
+            type: "tween",
+          }}>
+          {x}
+        </motion.div>
       );
     }
-    if (star.x === x && star.y === y) {
-      classString = `${classString} bg-yellow-400`;
-      layoutId = `star`;
-    }
-    return (
-      <div
-        //layoutId={layoutId}
-        //initial={{}}
-        //animate={{}}
-        style={{ display: "inline-block" }}
-        className={classString}
-        //transition={{ duration: 0.25, type: "tween" }}
-      />
-    );
+
+    if (star.x === x && star.y === y) classString = `${classString} bg-yellow-400`;
+
+    return <div className={classString} />;
   };
 
   return (
